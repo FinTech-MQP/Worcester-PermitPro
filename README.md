@@ -9,7 +9,7 @@
 
 **Site selection and due diligence for affordable housing in Worcester, Massachusetts, on one map.** PermitPro pulls the city's parcel, zoning, assessment and flood-zone layers into a PostGIS database, shows every candidate parcel with its constraints, scores it against the city's housing financing programs, and runs a permitting analysis with an AI assistant. Permit and assessment records can be anchored on chain as hashes so that off-chain data can be verified later.
 
-![The PermitPro home page: the Worcester PermitPro header, a search box over a construction photo, and an OpenStreetMap view of Worcester with the city boundary outlined.](docs/home.png)
+![Inspecting a parcel: the Info tab with the photo grid, the JSON export button, the listing title, its zone, parcel id, acreage and flood zone, descriptive tags, and the parcel polygon on a Leaflet map. Sample listing.](docs/inspect-info.png)
 
 Built as a Worcester Polytechnic Institute Major Qualifying Project in autumn 2023, in collaboration with the City of Worcester's Chief Development Officer. The City of Worcester now owns and operates the platform in its low-income housing development pipeline.
 
@@ -21,9 +21,27 @@ Affordable housing projects in a mid-sized city die in due diligence. A develope
 
 - **Browse parcels on a map.** The home page draws Worcester's boundary and every listed parcel polygon on OpenStreetMap tiles. Browse filters listings by zone and acreage and shows each one as a card with its zone, parcel id, acreage and FEMA flood zone.
 - **Inspect a parcel.** Three tabs: Info (address, assessments, land use, zone, flood zone, parcel map, JSON export), Financial Program Eligibility (sliders and toggles for area median income, ADA units, mixed income and affordability term, matched against sixteen financing programs, including the Affordable Housing Trust Fund, HOME, HOME-ARP and First Time Homeownership Development), and Permitting.
-- **AI permitting analysis and chat.** The Permitting tab sends the parcel's data and a 27-question permitting checklist (zoning, abutters, proximity to a town line, floodplain, traffic, amenities) to an OpenAI Assistant and renders answer and explanation per question. A chat box lets the user ask follow-ups about the same parcel.
+- **Permitting analysis and chat.** When a listing is collected, an OpenAI Assistant answers a 27-question permitting checklist (zoning, abutters, proximity to a town line, floodplain, traffic, amenities) and the answers are stored with the listing. The Permitting tab renders answer and explanation per question, and a chat box beside it asks the assistant follow-ups about the same parcel.
 - **Collect city data.** A collector service reads the City of Worcester's ArcGIS Open Data services (regulatory zoning, property parcels, structures and addresses), the FEMA flood-zone feature service, a municipal-boundary service for parcels within 300 ft of another town, and the Vision Government Solutions property cards for assessments, land use and photos.
 - **Anchor records on chain.** A `PermitManagement` contract with owner, approver, assessor and developer roles stores permits and assessments as records with hashes of their GIS data. A `verifyOffChainDataHash` call checks a stored hash against the database copy. The contract is deployed to the Goerli test network and driven by a small MetaMask dApp.
+
+## How it works
+
+![Process flow: four public data sources feed the collector, which calls an OpenAI Assistant and writes to PostGIS. The API serves the web app, whose Home, Browse and Inspect views end in the Info, Financial Program Eligibility and Permitting tabs. The contract on Goerli holds hashes of permit and assessment records.](docs/process-flow.png)
+
+A listing starts with an address posted to the collector. The collector pulls the parcel polygon, zoning, addresses, assessments, land use, photos, flood zone and neighbouring towns from the city and public services, asks an OpenAI Assistant for a description and the permitting answers, and writes everything to PostGIS. The API serves listings and zones to the web app. On chain, only hashes of permit and assessment records are stored, so a record in the database can be verified later by rehashing it.
+
+## Walkthrough
+
+The screenshots below come from a local run with six sample listings and sample answers, so the parcels, prices and permitting answers are illustrative and the photos repeat.
+
+![Browse: the parcel size slider, the zone filter open with six Worcester zones, and listing cards with zone, parcel id, acreage and flood zone chips.](docs/browse.png)
+
+![Financial Program Eligibility: sliders for area median income and ADA share, toggles for unhoused residents, first-time homebuyers and mixed income, a term of affordability slider, and the city's programs marked applicable or ruled out with the reason.](docs/inspect-financial.png)
+
+![Permitting: the answered checklist on the left, and the Willow chat on the right with a question about a 12-unit affordable project and the assistant's reply.](docs/inspect-permitting.png)
+
+![Home: the Worcester map with the six sample parcel polygons drawn over OpenStreetMap tiles.](docs/home-map.png)
 
 ## Architecture
 

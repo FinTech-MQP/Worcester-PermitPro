@@ -1,0 +1,42 @@
+flowchart TB
+  subgraph City["City of Worcester and public data"]
+    Z[("ArcGIS Open Data<br/>zoning, parcels, addresses")]
+    V[("Vision property cards<br/>assessments, land use, photos")]
+    F[("FEMA flood zones")]
+    B[("Municipal boundaries<br/>parcels within 300 ft")]
+  end
+  C["data-collector, Express on :2999<br/>POST /api/listing with an address"]
+  AI1["OpenAI Assistant<br/>listing description and permitting analysis"]
+  DB[("PostgreSQL 16 + PostGIS<br/>Address, Parcel, Zone, LandUse, Assessment,<br/>FloodZone, Listing, Analysis")]
+  CH["PermitManagement contract on Goerli<br/>roles: owner, approver, assessor, developer<br/>stores permit and assessment hashes,<br/>verifyOffChainDataHash checks them"]
+  API["Willow-Back-End-Brain, Express on :3001<br/>GET /Listing, GET /Zone"]
+  subgraph Web["Willow web app, React + Vite + Leaflet"]
+    H["Home<br/>Worcester map with parcel polygons"]
+    BR["Browse<br/>filter by zone and acreage, listing cards"]
+    I["Inspect a parcel"]
+    T1["Info<br/>assessments, zone, flood zone,<br/>parcel map, JSON export"]
+    T2["Financial Program Eligibility<br/>AMI, ADA, mixed income, term<br/>against 16 city programs"]
+    T3["Permitting<br/>27-question checklist from the<br/>stored analysis, plus a chat box"]
+    H --> BR --> I
+    I --> T1
+    I --> T2
+    I --> T3
+  end
+  AI2["OpenAI Assistant<br/>chat replies about the parcel"]
+  Z --> C
+  V --> C
+  F --> C
+  B --> C
+  C <--> AI1
+  C --> DB
+  DB <-.-> CH
+  DB --> API --> H
+  T3 <--> AI2
+  classDef src fill:#eef3f8,stroke:#5a6b7d,color:#1b1b1f
+  classDef app fill:#f7f6f3,stroke:#1b1b1f,color:#1b1b1f
+  classDef ai fill:#fff4e5,stroke:#b26a00,color:#1b1b1f
+  classDef chain fill:#eafaf1,stroke:#1e7f4f,color:#1b1b1f
+  class Z,V,F,B,DB src
+  class C,API,H,BR,I,T1,T2,T3 app
+  class AI1,AI2 ai
+  class CH chain
