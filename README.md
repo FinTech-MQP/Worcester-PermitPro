@@ -41,8 +41,6 @@ The screenshots below come from a local run with six sample listings and sample 
 
 ![Permitting: the answered checklist on the left, and the Willow chat on the right with a question about a 12-unit affordable project and the assistant's reply.](docs/inspect-permitting.png)
 
-![Home: the Worcester map with the six sample parcel polygons drawn over OpenStreetMap tiles.](docs/home-map.png)
-
 ## Architecture
 
 | Package | Role | Stack |
