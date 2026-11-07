@@ -20,8 +20,8 @@ Affordable housing projects in a mid-sized city die in due diligence. A develope
 ## What it does
 
 - **Browse parcels on a map.** The home page draws Worcester's boundary and every listed parcel polygon on OpenStreetMap tiles. Browse filters listings by zone and acreage and shows each one as a card with its zone, parcel id, acreage and FEMA flood zone.
-- **Inspect a parcel.** Three tabs: Info (address, assessments, land use, zone, flood zone, parcel map, JSON export), Financial Program Eligibility (sliders and toggles for area median income, ADA units, mixed income and affordability term, matched against the Affordable Housing Trust Fund, HOME, HOME-ARP and First Time Homeownership Development programs), and Permitting.
-- **AI permitting analysis and chat.** The Permitting tab sends the parcel's data and a 28-question permitting checklist (zoning, abutters, proximity to a town line, floodplain, traffic, amenities) to an OpenAI Assistant and renders answer and explanation per question. A chat box lets the user ask follow-ups about the same parcel.
+- **Inspect a parcel.** Three tabs: Info (address, assessments, land use, zone, flood zone, parcel map, JSON export), Financial Program Eligibility (sliders and toggles for area median income, ADA units, mixed income and affordability term, matched against sixteen financing programs, including the Affordable Housing Trust Fund, HOME, HOME-ARP and First Time Homeownership Development), and Permitting.
+- **AI permitting analysis and chat.** The Permitting tab sends the parcel's data and a 27-question permitting checklist (zoning, abutters, proximity to a town line, floodplain, traffic, amenities) to an OpenAI Assistant and renders answer and explanation per question. A chat box lets the user ask follow-ups about the same parcel.
 - **Collect city data.** A collector service reads the City of Worcester's ArcGIS Open Data services (regulatory zoning, property parcels, structures and addresses), the FEMA flood-zone feature service, a municipal-boundary service for parcels within 300 ft of another town, and the Vision Government Solutions property cards for assessments, land use and photos.
 - **Anchor records on chain.** A `PermitManagement` contract with owner, approver, assessor and developer roles stores permits and assessments as records with hashes of their GIS data. A `verifyOffChainDataHash` call checks a stored hash against the database copy. The contract is deployed to the Goerli test network and driven by a small MetaMask dApp.
 
@@ -40,7 +40,7 @@ Data flows collector → PostGIS → Brain API → web app. The chain holds hash
 
 ## Install
 
-Requirements: Node 18 or newer, pnpm 8 (`corepack enable`), PostgreSQL 16 with PostGIS, and an OpenAI API key with two Assistants (one for permitting, one for chat).
+Requirements: Node 18 or newer, pnpm 8 (`corepack enable`), PostgreSQL 16 with PostGIS, and an OpenAI API key with three Assistants (summarizer, permitter and chatter).
 
 ```bash
 git clone https://github.com/FinTech-MQP/Worcester-PermitPro.git
@@ -53,7 +53,8 @@ pnpm --filter database exec prisma migrate deploy
 pnpm --filter database exec prisma generate
 
 # OpenAI
-# shared/utils/API_KEY.ts exports OPENAI_API_KEY and the two assistant ids. Fill them in locally and never commit them.
+# shared/utils/API_KEY.ts exports OPENAI_API_KEY and shared/utils/constants.ts holds the three assistant ids.
+# Fill them in locally and never commit a real key.
 ```
 
 ## Run
@@ -74,7 +75,7 @@ The web app imports the OpenAI client at page load. Without a key the home page 
 ```bash
 cd apps/finMQPdeployHardhat
 cp .env.example .env            # INFURA_API_KEY and PRIVATE_KEY for Goerli
-npx hardhat run scripts/deploy.js --network Goerli
+npx hardhat run scripts/02_deploy_contract_finMQP.js --network Goerli
 cd backend && npm install && node .          # records API on :4001, needs BLOCKCHAIN_DATABASE_URL
 cd ../frontend && npm install && npm start   # dApp on :4000
 ```
